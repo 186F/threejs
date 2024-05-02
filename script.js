@@ -1,42 +1,24 @@
 import * as THREE from 'three'
-import gsap from 'gsap'
+import { OrbitControls } from 'three/examples/jsm/Addons.js'
 
+console.log(OrbitControls)
+
+// Cursor
+const cursor = {
+    x: 0,
+    y: 0
+}
+
+window.addEventListener('mousemove', (event) => {
+    cursor.x = event.clientX / sizes.width - 0.5,
+    cursor.y = - (event.clientY / sizes.height - 0.5)
+})
+
+/**
+ * Base
+ */
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
-
-// Scene
-const scene = new THREE.Scene()
-
-// Objects
-const group = new THREE.Group()
-scene.add(group)
-
-const cube1 = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshBasicMaterial({ color: 0xff0000 })
-)
-
-group.add(cube1)
-
-const cube2 = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshBasicMaterial({ color: 0x00ff00 })
-)
-
-cube2.position.x = -2
-group.add(cube2)
-
-const cube3 = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshBasicMaterial({ color: 0x0000ff })
-)
-
-cube3.position.x = 2
-group.add(cube3)
-
-// Axes helper
-const axesHelper = new THREE.AxesHelper()
-scene.add(axesHelper)
 
 // Sizes
 const sizes = {
@@ -44,10 +26,25 @@ const sizes = {
     height: 600
 }
 
+// Scene
+const scene = new THREE.Scene()
+
+// Object
+const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(1, 1, 1, 5, 5, 5),
+    new THREE.MeshBasicMaterial({ color: 0xff0000 })
+)
+scene.add(mesh)
+
 // Camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height)
+const camera = new THREE.PerspectiveCamera(60, sizes.width / sizes.height, 0.1, 100)
 camera.position.z = 3
+camera.lookAt(mesh.position)
 scene.add(camera)
+
+// Controls
+const controls = new OrbitControls(camera, canvas)
+controls.enableDamping = true
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({
@@ -55,35 +52,30 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 
-/* // Clock
-const clock = new THREE.Clock() */
+// Animate
+const clock = new THREE.Clock()
 
-gsap.to(group.position, { 
-    duration: 1,
-    delay: 1,
-    x: 2
-})
-
-gsap.to(group.position, { 
-    duration: 1,
-    delay: 2,
-    x: 0
-})
-
-// Animations
 const tick = () =>
 {
-
-/*     // Clock
     const elapsedTime = clock.getElapsedTime()
-    console.log(elapsedTime)
 
-    //Update objects
-    camera.position.y = Math.sin(elapsedTime)
-    group.position.x = Math.cos(elapsedTime) */
+    // Update objects
+    /* mesh.rotation.y = elapsedTime; */
+
+    // Update camera
+/*     camera.position.x = Math.sin(cursor.x * Math.PI * 2) * 2
+    camera.position.z = Math.cos(cursor.x * Math.PI * 2) * 2
+    camera.position.y = cursor.y * 3
+    camera.lookAt(mesh.position) */
+
+    // Update controls
+    controls.update()
+    
 
     // Render
     renderer.render(scene, camera)
+
+    // Call tick again on the next frame
     window.requestAnimationFrame(tick)
 }
 
