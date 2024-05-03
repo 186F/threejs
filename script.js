@@ -1,19 +1,36 @@
 import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/Addons.js'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
-// Cursor
-const cursor = {
-    x: 0,
-    y: 0
-}
-
-window.addEventListener('mousemove', (event) => {
-    cursor.x = event.clientX / sizes.width - 0.5,
-    cursor.y = - (event.clientY / sizes.height - 0.5)
-})
-
+/**
+ * Base
+ */
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
+
+// Scene
+const scene = new THREE.Scene()
+
+// Object
+/* const geometry = new THREE.BoxGeometry(1, 1, 1, 2, 2, 2) */
+
+const geometry = new THREE.BufferGeometry()
+
+const count = 50
+const positionsArray = new Float32Array(count * 3 * 3)
+
+for(let i = 0; i < count * 3 * 3; i++)
+{
+    positionsArray[i] = (Math.random() - 0.5) * 4
+}
+
+const positionsAttribute = new THREE.BufferAttribute(positionsArray, 3)
+geometry.setAttribute('position', positionsAttribute)
+
+const material = new THREE.MeshBasicMaterial({ 
+    color: 0xff0000,
+    wireframe: true })
+const mesh = new THREE.Mesh(geometry, material)
+scene.add(mesh)
 
 // Sizes
 const sizes = {
@@ -21,7 +38,7 @@ const sizes = {
     height: window.innerHeight
 }
 
-window.addEventListener('resize', () => 
+window.addEventListener('resize', () =>
 {
     // Update sizes
     sizes.width = window.innerWidth
@@ -36,31 +53,9 @@ window.addEventListener('resize', () =>
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
-window.addEventListener('dblclick', () =>
-{
-    if(!document.fullscreenElement)
-    {
-        canvas.requestFullscreen()
-    }
-    else{
-        document.exitFullscreen()
-    }
-})
-
-// Scene
-const scene = new THREE.Scene()
-
-// Object
-const mesh = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1, 5, 5, 5),
-    new THREE.MeshBasicMaterial({ color: 0xff0000 })
-)
-scene.add(mesh)
-
 // Camera
-const camera = new THREE.PerspectiveCamera(60, sizes.width / sizes.height, 0.1, 100)
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
 camera.position.z = 3
-camera.lookAt(mesh.position)
 scene.add(camera)
 
 // Controls
@@ -83,7 +78,6 @@ const tick = () =>
 
     // Update controls
     controls.update()
-    
 
     // Render
     renderer.render(scene, camera)
